@@ -18,8 +18,8 @@ namespace ch1seL.DistributedLock.Tests.Base
 
         protected readonly IList<Interval> Intervals = new List<Interval>();
         protected readonly IList<Task> TaskList = new List<Task>();
-        private IDistributedLock _distributedLock;
         private ServiceProvider _serviceProvider;
+        protected IDistributedLock DistributedLock;
 
         public void Dispose()
         {
@@ -31,7 +31,7 @@ namespace ch1seL.DistributedLock.Tests.Base
             IServiceCollection services = new ServiceCollection();
             lockServiceRegistration(services);
             _serviceProvider = services.BuildServiceProvider();
-            _distributedLock = _serviceProvider.GetRequiredService<IDistributedLock>();
+            DistributedLock = _serviceProvider.GetRequiredService<IDistributedLock>();
         }
 
         protected void AddSaveIntervalTaskToTaskList(TimeSpan? waitTime = null, TimeSpan? workTime = null, string key = null,
@@ -47,7 +47,7 @@ namespace ch1seL.DistributedLock.Tests.Base
 
         private async Task SaveInterval(TimeSpan? waitTime = null, TimeSpan? workTime = null, string key = null, CancellationToken cancellationToken = default)
         {
-            using IDisposable lockAsync = await _distributedLock.CreateLockAsync(key ?? _key, TimeSpan.FromMinutes(5), waitTime ?? TimeSpan.FromMinutes(5),
+            using IDisposable lockAsync = await DistributedLock.CreateLockAsync(key ?? _key, TimeSpan.FromMinutes(5), waitTime ?? TimeSpan.FromMinutes(5),
                 TimeSpan.FromMilliseconds(100), cancellationToken);
 
             var start = _stopwatch.ElapsedTicks;
